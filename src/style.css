@@ -1,0 +1,13 @@
+body {
+    margin: 0;
+    display: flex;
+}
+
+body .script {
+    float: left;
+}
+
+body .textarea {
+    padding: 5px;
+    overflow: hidden;
+}
