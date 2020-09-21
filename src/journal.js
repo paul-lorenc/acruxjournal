@@ -6,14 +6,20 @@ var offY = 0
 let NODE_RADIUS = 50
 let mousedrag_flag = false
 let half_canvas = false
-let jornal_editor;
+let journal_editor;
 
 function setup() {
   var canvas = createCanvas(windowWidth, windowHeight);
   canvas.style('display', 'block');
-  jornal_editor = createDiv("Hello World");
-  jornal_editor.hide()
-  jornal_editor.id("textarea")
+  journal_editor = createDiv();
+  journal_editor.id('editor_parent');
+  journal_text = createElement('textarea');
+  journal_text.elt.id = "editor";
+  journal_paint = createDiv('paint app')
+  journal_paint.id('paint')
+  journal_editor.child(journal_text)
+  journal_editor.child(journal_paint)
+  
 }
 
 function drawCanvasBorder() {
@@ -65,6 +71,12 @@ function halfCanvas() {
 }
 
 function mousePressed() {
+    if(half_canvas && mouseX > windowWidth/2) {
+        ignore_flag = true;
+        return
+    } else {
+        ignore_flag = false
+    }
     intersect_flag = false;
     offX = mouseX
     offY = mouseY
@@ -100,10 +112,10 @@ function mousePressed() {
         for(let i = 0; i < Nodes.length; i++) {
             Nodes[i].update(spotlightX, spotlightY)
         }
-        jornal_editor.show()
+        journal_editor.show()
         halfCanvas()
     } else {
-        jornal_editor.hide()
+        journal_editor.hide()
         windowResized()
     }
     
@@ -151,98 +163,3 @@ function keyPressed() {
         }  
     }
 }
-
-class Node {
-    constructor(x, y, r = NODE_RADIUS) {
-        this.x = x;
-        this.y = y;
-        this.r = r;
-        this.over = true;
-        this.selected = false;
-        this.engaged = false;
-    }
-
-    update(px, py) {
-        this.x = this.x + px
-        this.y = this.y + py
-    }
-
-    contains(px, py) {
-      let d = dist(px, py, this.x, this.y);
-      if (d < this.r) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-
-    intersects(px, py) {
-        let d = dist(px, py, this.x, this.y);
-        if (d < NODE_RADIUS + this.r) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    show() {
-        stroke(255)
-        if(this.over || this.selected || this.engaged) {
-            rectMode(CENTER)
-            if(this.selected && !this.engaged) {
-                fill(200)
-            }
-            if(this.engaged) {
-                for(let i = 1; i < 5; i ++){
-                    square(this.x, this.y, this.r * 2 - (i * this.r/10))
-                }
-            }
-            square(this.x, this.y, this.r * 2)
-        }
-    }
-}
-
-class Entry extends Node {
-  constructor(x, y, r = NODE_RADIUS) {
-    super(x,y,r);
-    var today = new Date();
-    this.dd = String(today.getDate()).padStart(2, '0');
-    this.mm = String(today.getMonth() + 1).padStart(2, '0');
-    this.yy = today.getFullYear() - 2000;
-  }
-
-  show() {
-    super.show()
-    stroke(166, 3, 17);
-    strokeWeight(2);
-    if(this.engaged) {
-        fill(125, 23, 0)
-    } else {
-        fill(100)
-    }
-    ellipse(this.x, this.y, this.r * 2);
-    text(this.dd, this.x - 7, this.y - 38)
-    text(this.mm, this.x - 35, this.y + 30)
-    text(this.yy, this.x + 24, this.y + 30)
-  }
-}
-
-class Goal extends Node{
-    constructor(x, y, r = NODE_RADIUS) {
-      super(x,y,r);
-      this.EntryArr = []
-    }
-
-    push(obj) {
-        this.EntryArr.push(obj)
-    }
-  
-    show() {
-      super.show()
-      stroke(1, 19, 133);
-      strokeWeight(2);
-      fill(100)
-      ellipse(this.x, this.y, this.r * 2);
-      text("GOAL", this.x - 7, this.y - 20)
-    }
-  }

@@ -3,11 +3,12 @@ body {
     display: flex;
 }
 
-body .script {
+body #script {
     float: left;
 }
 
-body .textarea {
-    padding: 5px;
+body #editor {
+    margin: 10px;
+    width: 100%;
     overflow: hidden;
 }
