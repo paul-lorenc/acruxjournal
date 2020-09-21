@@ -14,12 +14,19 @@ function setup() {
   journal_editor = createDiv();
   journal_editor.id('editor_parent');
   journal_text = createElement('textarea');
-  journal_text.elt.id = "editor";
-  journal_paint = createDiv('paint app')
-  journal_paint.id('paint')
+  journal_text.position(windowWidth/2+windowWidth/50, windowHeight/50)
+  journal_text.elt.id = "texteditor";
+  journal_paint = new p5(entrybg, 'editor_parent');
   journal_editor.child(journal_text)
-  journal_editor.child(journal_paint)
-  
+  journal_editor.hide()
+
+  goal_display = createDiv();
+  goal_display.id('display_parent');
+  goal_text = createP("GOALLL!!!!")
+  goal_text.position(windowWidth/2+windowWidth/50, windowHeight/50)
+  goal_display.child(goal_text)
+  goal_canvas = new p5(goalbg, 'display_parent')
+  goal_display.hide()
 }
 
 function drawCanvasBorder() {
@@ -60,6 +67,7 @@ function draw() {
 }
 
 function windowResized() {
+    journal_text.position(windowWidth/2, 10)
     resizeCanvas(windowWidth, windowHeight);
     half_canvas = false
     
@@ -81,6 +89,8 @@ function mousePressed() {
     offX = mouseX
     offY = mouseY
     let spotlight_flag = false;
+    let goal_sel = false;
+    let entry_sel = false;
     let spotlightX = 0
     let spotlightY = 0
     for(let i = 0; i < Nodes.length; i++) {
@@ -97,6 +107,11 @@ function mousePressed() {
                 Nodes[i].selected = false;
             } else {
                 Nodes[i].selected = true
+                if(Nodes[i].isGoal) {
+                    goal_sel = true
+                } else {
+                    entry_sel = true
+                }
                 spotlight_flag = true
                 spotlightX = windowWidth/4 - Nodes[i].x
                 spotlightY = windowHeight/2 - Nodes[i].y
@@ -112,10 +127,18 @@ function mousePressed() {
         for(let i = 0; i < Nodes.length; i++) {
             Nodes[i].update(spotlightX, spotlightY)
         }
-        journal_editor.show()
         halfCanvas()
+        if(goal_sel) {
+            journal_editor.hide()
+            goal_display.show()
+            
+        } else {
+            goal_display.hide()
+            journal_editor.show()
+        }
     } else {
         journal_editor.hide()
+        goal_display.hide()
         windowResized()
     }
     

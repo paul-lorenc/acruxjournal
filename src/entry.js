@@ -5,10 +5,12 @@ class Entry extends Node {
       this.dd = String(today.getDate()).padStart(2, '0');
       this.mm = String(today.getMonth() + 1).padStart(2, '0');
       this.yy = today.getFullYear() - 2000;
+      this.isGoal = false;
     }
   
     show() {
       super.show()
+      push()
       stroke(166, 3, 17);
       strokeWeight(2);
       if(this.engaged) {
@@ -20,5 +22,6 @@ class Entry extends Node {
       text(this.dd, this.x - 7, this.y - 38)
       text(this.mm, this.x - 35, this.y + 30)
       text(this.yy, this.x + 24, this.y + 30)
+      pop()
     }
   }

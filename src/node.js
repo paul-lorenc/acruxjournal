@@ -32,9 +32,13 @@ class Node {
     }
 
     show() {
+        push()
         stroke(255)
         if(this.over || this.selected || this.engaged) {
             rectMode(CENTER)
+            if(this.over) {
+                
+            }
             if(this.selected && !this.engaged) {
                 fill(200)
             }
@@ -45,5 +49,6 @@ class Node {
             }
             square(this.x, this.y, this.r * 2)
         }
+        pop()
     }
 }
