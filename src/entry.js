@@ -6,6 +6,7 @@ class Entry extends Node {
       this.mm = String(today.getMonth() + 1).padStart(2, '0');
       this.yy = today.getFullYear() - 2000;
       this.isGoal = false;
+      this.text = ""
     }
   
     show() {
@@ -13,11 +14,8 @@ class Entry extends Node {
       push()
       stroke(166, 3, 17);
       strokeWeight(2);
-      if(this.engaged) {
-          fill(125, 23, 0)
-      } else {
-          fill(100)
-      }
+      fill(100)
+      noFill()
       ellipse(this.x, this.y, this.r * 2);
       text(this.dd, this.x - 7, this.y - 38)
       text(this.mm, this.x - 35, this.y + 30)

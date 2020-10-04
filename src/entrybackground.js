@@ -1,17 +1,14 @@
 var entrybg = function(s) {
     s.setup = function() {
-        s.createCanvas(s.windowWidth/2,s.windowHeight)
-        s.background(75)
-        s.push()
-        s.rectMode(CENTER)
-        s.noFill()
-        s.rect(windowWidth/8, 3*windowHeight/4, windowWidth/4 - windowWidth/40, windowWidth/4 -windowWidth/40)
-        s.rect(3*windowWidth/8, 3*windowHeight/4, windowWidth/4 - windowWidth/40, windowWidth/4 -windowWidth/40)
-        s.pop()
+        s.createCanvas(s.windowWidth/2,s.windowHeight) 
     }
 
     s.draw = function() {
         s.push()
+        s.background(58, 64, 74)
+        s.rectMode(CENTER)
+        s.noFill()
+        s.rect(windowWidth/4, windowHeight/2+windowHeight/8, windowWidth/2 - windowWidth/5, windowWidth/2 -windowWidth/5)
         s.pop()
     }
 
