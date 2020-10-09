@@ -1,9 +1,10 @@
-let Nodes = []
+var Nodes
 var offX = 0
 var offY = 0
 let NODE_RADIUS = 50
 
 var database
+var NEW_NODE_ID
 
 let half_canvas = false
 let journal_editor;
@@ -22,43 +23,18 @@ let global_engaged = [];
 let global_selected = [];
 
 function setup() {
-    var firebaseConfig = {
-        apiKey: "AIzaSyDOkLSuKuTCLW183HD1xda1yvjutcR_3KQ",
-        authDomain: "acruxjournal.firebaseapp.com",
-        databaseURL: "https://acruxjournal.firebaseio.com",
-        projectId: "acruxjournal",
-        storageBucket: "acruxjournal.appspot.com",
-        messagingSenderId: "1083378892807",
-        appId: "1:1083378892807:web:5f989a4553f27c9e59eaa2"
-    };
-      // Initialize Firebase
+    Nodes = []
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig); 
     database = firebase.database()
     database.ref('nodes').once('value', function(snapshot) {
         snapshot.forEach(function(item) {
             var itemVal = item.val();
-            itemVal.forEach(function(node) {
-                var new_node
-                if(node.isGoal) {
-                    new_node = new Goal(node.x,node.y,node.r)
-                    new_node.text = node.text
-                    new_node.engaged = false
-                    new_node.selected = false
-                    new_node.over = false
-                } else {
-                    new_node = new Entry(node.x,node.y,node.r)
-                    new_node.text = node.text
-                    new_node.engaged = false
-                    new_node.selected = false
-                    new_node.over = false
-                    new_node.dd = node.dd
-                    new_node.mm = node.mm
-                    new_node.yy = node.yy
-                }
-                Nodes.push(new_node)
-            })
+            Nodes = reviveNodes(itemVal)
         })
     });
+    console.log(Nodes);
+
     var canvas = createCanvas(windowWidth, windowHeight);
     canvas.style('display', 'block');
 
@@ -150,7 +126,7 @@ function drawSplines() {
         if(Nodes[i].isGoal) {
             for(let j = 0; j < Nodes[i].EntryArr.length; j++) {
                 push()
-                var source_node = Nodes[i].EntryArr[j]
+                var source_node = getNodeByID(Nodes[i].EntryArr[j])
                 let source_over = source_node.over || source_node.selected || source_node.engaged
                 let goal_over = Nodes[i].over || Nodes[i].selected || Nodes[i].engaged 
                 if(source_over || goal_over) {
@@ -164,8 +140,8 @@ function drawSplines() {
                 noFill()
                 let x1 = Nodes[i].x
                 let y1 = Nodes[i].y
-                let x2 = Nodes[i].EntryArr[j].x
-                let y2 = Nodes[i].EntryArr[j].y
+                let x2 = source_node.x
+                let y2 = source_node.y
     
                 // angle in degrees
                 var angleDeg = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
@@ -301,7 +277,7 @@ function mousePressed() {
         if(Nodes[i].contains(mouseX, mouseY)) {
             if(global_engaged.length > 0) {
                 if(Nodes[i].isGoal && !global_engaged[0].isGoal) {
-                    Nodes[i].EntryArr.push(global_engaged[0])
+                    Nodes[i].EntryArr.push(global_engaged[0].id)
                 } else if(!Nodes[i].isGoal) {
                     old_engaged = global_engaged.pop()
                     old_engaged.engaged = false
@@ -387,6 +363,7 @@ function mousePressed() {
     
     if(!intersect_flag && keyIsPressed && keyCode == 16) {
         let e = new Entry(mouseX, mouseY);
+        e.id = uuidv4();
         Nodes.push(e);
         return
     }
@@ -405,6 +382,7 @@ function mouseReleased() {
 }
 
 function keyPressed() {
+    console.log(Nodes);
     intersect_flag = false
     //esc key
     if(keyCode == 27) {
@@ -431,8 +409,19 @@ function keyPressed() {
     }
     //delete
     if(keyCode == 8) {
+        
         for(let i = 0; i < Nodes.length; i++) {
             if(Nodes[i].engaged && !half_canvas) {
+                delete_id = Nodes[i].id
+                for(let j = 0; j < Nodes.length; j++) {
+                    if(Nodes[j].isGoal) {
+                        if(Nodes[j].EntryArr.includes(delete_id)) {
+                            t_idx = Nodes[j].EntryArr.indexOf(delete_id)
+                            console.log(t_idx)
+                            Nodes[j].EntryArr.splice(t_idx,1)
+                        }
+                    }
+                }
                 global_engaged.pop()
                 Nodes.splice(i, 1)
             }
@@ -447,6 +436,7 @@ function keyPressed() {
         }
         if(!intersect_flag && !half_canvas && !search_state) {
             let g = new Goal(mouseX, mouseY);
+            g.id = uuidv4();
             Nodes.push(g);
         }  
     }

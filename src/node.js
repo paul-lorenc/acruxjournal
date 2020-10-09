@@ -1,5 +1,6 @@
 class Node {
     constructor(x, y, r = NODE_RADIUS) {
+        this.id = ""
         this.x = x;
         this.y = y;
         this.r = r;
