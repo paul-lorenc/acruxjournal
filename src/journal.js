@@ -249,7 +249,6 @@ function draw() {
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
     half_canvas = false
-    
 }
 
 function halfCanvas() {
@@ -336,7 +335,6 @@ function mousePressed() {
         return
     } else if(global_selected.length > 0) {
         global_selected[0].text = $('writer').innerHTML
-        
     }
 
     if(!spotlight_flag) {
@@ -370,6 +368,9 @@ function mousePressed() {
 }
 
 function mouseDragged() {
+    if(half_canvas && mouseX > windowWidth/2) {
+        return
+    }
     offX = mouseX - pmouseX
     offY = mouseY - pmouseY
 

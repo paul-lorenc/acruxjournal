@@ -1,16 +1,19 @@
 var entrybg = function(s) {
     s.setup = function() {
         s.createCanvas(s.windowWidth/2,s.windowHeight) 
+        s.push()
+        s.background(58, 64, 74)
+        
+        s.gesture = s.createDiv()
+        s.gesture.id("gesture")
+        s.gesture.position(windowWidth/16, windowHeight/2)
+        s.journal_paint = new p5(gesture,"gesture")
+        s.pop()
+        
     }
 
     s.draw = function() {
-        s.push()
-        s.background(58, 64, 74)
-        s.rectMode(CENTER)
-        s.noFill()
-        s.rect(windowWidth/4, windowHeight/2+windowHeight/8, windowWidth/2 - windowWidth/5, windowWidth/2 -windowWidth/5)
-        s.pop()
-    }
+    } 
 
     s.windowResized = function() {
         s.resizeCanvas(s.windowWidth/2, s.windowHeight/2)
