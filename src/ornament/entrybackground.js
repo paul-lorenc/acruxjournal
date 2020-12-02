@@ -9,7 +9,6 @@ var entrybg = function(s) {
         s.gesture.position(windowWidth/16, windowHeight/2)
         s.journal_paint = new p5(gesture,"gesture")
         s.pop()
-        
     }
 
     s.draw = function() {
