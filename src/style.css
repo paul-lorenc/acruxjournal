@@ -1,21 +1,21 @@
 @font-face {
-    src: url(fonts/DOS-TWN16.ttf);
-    font-family: DOS-16;
+  src: url(fonts/DOS-TWN16.ttf);
+  font-family: DOS-16;
 }
 
 body {
-    margin: 0;
-    display: flex;
+  margin: 0;
+  display: flex;
 }
 
 body #script {
-    float: left;
+  float: left;
 }
 
 #cursor {
   font-size: 12px;
-  background-color: black;
-  color: black;
+  background-color: white;
+  color: white;
   position: relative;
   opacity: 1;
   height: 1.5em;
@@ -25,78 +25,74 @@ body #script {
   text-indent: -5px;
   display: inline-block;
   text-decoration: blink;
-  animation: blinker 0.7s linear infinite;
+  animation: blinker 1.1s linear infinite;
 }
 
 #editor_parent {
-    position: absolute;
+  position: absolute;
 }
 
 #writer {
   font-family: cursor, DOS-16;
+  color: white;
   font-weight: bold;
   background: transparent;
 }
 
 div#search_bar_div {
-    background: white;
-    width: 10%;
-    height: 20px;
-    position: absolute;
-    display: inline-block;
+  background: black;
+  border: 1px double white;
+  width: 10%;
+  height: 20px;
+  position: absolute;
+  display: inline-block;
 }
 
 #writersearch {
-    font-family: DOS-16;
-    font-weight: bold;
-    background: transparent;
-  }
-
-
+  font-family: DOS-16;
+  font-weight: bold;
+  background: transparent;
+}
 div#getter {
   margin: 16px;
   width: 47.5%;
   height: 30%;
-  background: rgb(58, 64, 74);
-  
+  background:black;
 }
 #info_bar_container {
-    height: 20px;
-    width: 200px;
-    position: absolute;
-    display: inline-block;
-    animation:blinkColors 1s linear infinite;
-    overflow: hidden;
+  height: 20px;
+  padding-right: 5px;
+  border: 1px double white;
+  width: 348px;
+  background-color: blue;
+  position: absolute;
+  display: inline-block;
+  overflow: hidden;
 }
 
 #info_bar {
-    display: inline-block;
-    font-family: DOS-16;
-    white-space: nowrap;
-    position: absolute;
-    animation:slideIt 14s linear infinite, blinkTextColor 1s linear infinite;
+  display: inline-block;
+  color: white;
+  font-family: DOS-16;
+  white-space: nowrap;
+  position: absolute;
+  animation: slideIt 17s linear infinite;
 }
 
 @keyframes slideIt {
-    0%{left:100%;}
-    100%{left:-300%;}
+  0% {
+    left: 100%;
+  }
+  100% {
+    left: -200%;
+  }
 }
 
-@keyframes blinkColors {
-    0% { background-color: blue; }
-    49% {background-color: blue;}
-    50% {background-color: white;}
-    100% { background-color: white; }
-}
-
-@keyframes blinkTextColor {
-    0% { color: white; }
-    49% {color: white;}
-    50% {color: blue;}
-	100% {color: blue; }
-}
-
-@keyframes blinker {  
-  49% {opacity: 1.0;}
-  50% { opacity: 0.0; }
+@keyframes blinker {
+  40% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
