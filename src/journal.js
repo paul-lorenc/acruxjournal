@@ -1,7 +1,7 @@
 var Nodes;
 var offX = 0;
 var offY = 0;
-let NODE_RADIUS = 50;
+let NODE_RADIUS = 100;
 
 var database;
 var NEW_NODE_ID;
@@ -24,6 +24,9 @@ let global_selected = [];
 
 function preload() {
   entryTexture = loadImage("assets/entrynodemodel.png");
+  goalTexture = loadImage("assets/goalnodemodel.png");
+  onHoverTexture = loadImage("assets/onhover.png");
+  cornerFeatureTexture = loadImage("assets/cornerfeature.png");
 }
 
 async function firebaseInit() {
@@ -57,7 +60,7 @@ async function setup() {
 
   search_bar_div = createDiv();
   search_bar_div.id("search_bar_div");
-  search_bar_div.position(windowWidth / 5, 3);
+  search_bar_div.position(windowWidth / 10 + 3, 3);
 
   search_bar = createInput("");
   search_bar.id("search_bar");
@@ -78,7 +81,7 @@ async function setup() {
   search_bar_div.child(search_bar_span);
 
   info_bar_container = createDiv();
-  info_bar_container.position(30, 3);
+  info_bar_container.position(5, 3);
   info_bar_container.id("info_bar_container");
   info_bar = createElement("span");
   info_bar.elt.id = "info_bar";
@@ -144,10 +147,10 @@ function drawSplines() {
           source_node.over || source_node.selected || source_node.engaged;
         let goal_over = Nodes[i].over || Nodes[i].selected || Nodes[i].engaged;
         if (source_over || goal_over) {
-          strokeWeight(1.4);
+          strokeWeight(4.4);
           stroke("white");
         } else {
-          strokeWeight(0.5);
+          strokeWeight(1.5);
           stroke("white");
         }
 
@@ -204,6 +207,7 @@ function drawSplines() {
 
 // draws border
 function drawCanvasBorder() {
+  push();
   if (half_canvas) {
     ww = windowWidth / 2;
   } else {
@@ -212,10 +216,10 @@ function drawCanvasBorder() {
   wh = windowHeight;
 
   strokeWeight(2);
-  stroke(200);
+  stroke(255);
 
-  line(6, 10, 6, wh - 10);
-  line(10, 10, 10, wh - 10);
+  line(6, 4, 6, wh - 10);
+  line(10, 4, 10, wh - 10);
 
   line(12, wh - 4, ww - 12, wh - 4);
   line(12, wh - 8, ww - 12, wh - 8);
@@ -223,8 +227,13 @@ function drawCanvasBorder() {
   line(ww - 6, wh - 10, ww - 6, 10);
   line(ww - 10, wh - 10, ww - 10, 10);
 
-  line(12, 4, ww - 12, 4);
-  line(12, 8, ww - 12, 8);
+  line(6, 4, ww - 12, 4);
+  line(6, 8, ww - 12, 8);
+  cornerFeatureTexture.resize(20, 20);
+  image(cornerFeatureTexture, 0, wh - 20);
+  image(cornerFeatureTexture, ww - 20, wh - 20);
+  image(cornerFeatureTexture, ww - 20, 0);
+  pop();
 }
 
 function draw() {
@@ -451,6 +460,20 @@ function searchKeyReleased() {
   if (keyCode == 13 && search_state) {
     ss_idx = 0;
     var search_str = $("search_bar").value.toLowerCase();
+    if (search_str.charAt(0) == ":") {
+      s_cmd = search_str.substring(1);
+      switch (s_cmd) {
+        case "s":
+          firebaseWrite();
+          console.log("writing from command terminal!!");
+      }
+      $("search_bar").value = "";
+      $("writersearch").innerHTML = "";
+      search_state = false;
+      search_stack = [];
+      journal_text.elt.focus();
+      return;
+    }
     for (let i = 0; i < Nodes.length; i++) {
       if (Nodes[i].text.toLowerCase().includes(search_str)) {
         search_stack.push(Nodes[i]);
@@ -465,6 +488,12 @@ function searchKeyReleased() {
       global_selected.push(search_stack[ss_idx]);
       spotlightUpdate(search_stack[ss_idx], Nodes);
       console.log(search_stack.length);
+    } else {
+      $("search_bar").value = "";
+      $("writersearch").innerHTML = "";
+      search_state = false;
+      search_stack = [];
+      journal_text.elt.focus();
     }
   }
   //right arrow during search state

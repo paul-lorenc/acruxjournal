@@ -45,15 +45,17 @@ class Node {
     noFill();
     if (this.over) {
       push();
-      polygon(this.x, this.y, this.r + 15, 6);
+      imageMode(CENTER);
+      image(onHoverTexture, this.x, this.y);
+      onHoverTexture.resize(200, 200);
       pop();
     }
     if (this.selected) {
       if (this.isGoal) {
         rectMode(CENTER);
-        square(this.x, this.y, 2 * this.r + 10);
+        square(this.x, this.y, 2 * this.r);
       } else {
-        ellipse(this.x, this.y, 2 * this.r + 10);
+        ellipse(this.x, this.y, 2 * this.r);
       }
     }
     if (this.engaged) {

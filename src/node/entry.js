@@ -19,10 +19,11 @@ class Entry extends Node {
     //ellipse(this.x, this.y, this.r * 2);
     imageMode(CENTER);
     image(entryTexture, this.x, this.y);
-    entryTexture.resize(110, 110);
-    text(this.dd, this.x - 7, this.y - 38);
-    text(this.mm, this.x - 35, this.y + 30);
-    text(this.yy, this.x + 24, this.y + 30);
+    entryTexture.resize(200, 200);
+    textFont("Times", 15);
+    text(this.dd, this.x - 7, this.y - 68);
+    text(this.mm, this.x - 73, this.y + 60);
+    text(this.yy, this.x + 58, this.y + 60);
     pop();
   }
 }

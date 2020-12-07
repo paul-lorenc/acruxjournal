@@ -41,6 +41,7 @@ body #script {
 
 div#search_bar_div {
   background: black;
+  padding-left: 1em;
   border: 1px double white;
   width: 10%;
   height: 20px;
@@ -61,9 +62,8 @@ div#getter {
 }
 #info_bar_container {
   height: 20px;
-  padding-right: 5px;
   border: 1px double white;
-  width: 348px;
+  width: 10%;
   background-color: blue;
   position: absolute;
   display: inline-block;
@@ -84,7 +84,7 @@ div#getter {
     left: 100%;
   }
   100% {
-    left: -200%;
+    left: -300%;
   }
 }
 
