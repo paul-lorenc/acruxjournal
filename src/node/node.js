@@ -8,6 +8,7 @@ class Node {
     this.selected = false;
     this.engaged = false;
     this.color;
+    this.drawing = [];
   }
 
   update(px, py) {

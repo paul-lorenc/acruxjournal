@@ -62,6 +62,9 @@ function reviveNodes(itemVal) {
       new_node.dd = node.dd;
       new_node.mm = node.mm;
       new_node.yy = node.yy;
+
+      new_node.drawing =
+        typeof node.drawing === "undefined" ? [] : node.drawing;
     }
     n.push(new_node);
   });
@@ -69,7 +72,7 @@ function reviveNodes(itemVal) {
 }
 
 function parseEntryArr(itemVal) {
-  if (itemVal == undefined) return [];
+  if (typeof itemVal === undefined) return [];
   let n = [];
   itemVal.forEach(function (node) {
     n.push(node);

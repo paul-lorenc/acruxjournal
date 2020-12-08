@@ -19,10 +19,14 @@ var gesture = function (s) {
     }
 
     if (s.last_two.length === 2) {
-      s.gestures.push({
+      // s.gestures.push({
+      //   point_set: s.last_two,
+      //   f: ge_pickDrawFunction(),
+      // });
+      global_drawing.push({
         point_set: s.last_two,
-        f: ge_pickDrawFunction(),
       });
+      global_drawing_f.push(ge_pickDrawFunction());
       s.last_two = [];
     }
     for (let j = 0; j < s.point_stack.length; j++) {
@@ -34,18 +38,16 @@ var gesture = function (s) {
       s.multicurve(s.last_two[k]);
     }
 
-    for (let i = 0; i < s.gestures.length; i++) {
-      s.multicurve(s.gestures[i].point_set[0]);
-      s.multicurve(s.gestures[i].point_set[1]);
-      s.gestures[i].f(s, s.gestures[i].point_set);
+    for (let i = 0; i < global_drawing.length; i++) {
+      s.multicurve(global_drawing[i].point_set[0]);
+      s.multicurve(global_drawing[i].point_set[1]);
+      f = global_drawing_f[i];
+      f(s, global_drawing[i].point_set);
     }
   };
 
   s.windowResized = function () {
-    s.resizeCanvas(
-      windowHeight / 4 + windowHeight / 16,
-      windowHeight / 4 + windowHeight / 16
-    );
+    s.resizeCanvas(windowWidth / 8, (3 * windowHeight) / 8);
   };
 
   s.mousePressed = function () {
@@ -63,6 +65,11 @@ var gesture = function (s) {
   };
 
   s.inCanvas = function (p) {
+    if (global_selected.length > 0) {
+      if (global_selected[0].isGoal) {
+        return false;
+      }
+    }
     return !(
       p.x < 0 ||
       p.y < 0 ||

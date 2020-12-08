@@ -188,3 +188,9 @@ const ge_pickDrawFunction = () => {
   p = Math.floor(Math.random() * ge_gestureArr.length);
   return ge_gestureArr[p];
 };
+
+const ge_setFunctions = () => {
+  for (let i = 0; i < global_drawing.length; i++) {
+    global_drawing_f.push(ge_pickDrawFunction());
+  }
+};

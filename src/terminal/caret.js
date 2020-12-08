@@ -7,7 +7,6 @@ window.onload = init;
 
 function init() {
   cursor = $("cursor");
-  cursor.style.left = "0px";
 }
 
 function nl2br(txt) {
@@ -25,7 +24,7 @@ function cleanText() {
   $("writer").innerHTML = nl2br($("writer").innerHTML);
 }
 
-function clearSet(string, s) {
+function clearSet(string) {
   $("setter").value = string;
   $("writer").innerHTML = string;
 }

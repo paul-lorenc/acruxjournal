@@ -12,15 +12,15 @@ let search_state = false;
 var search_stack = [];
 var ss_idx;
 
-let zoomout = false;
-let zoomin = false;
-
-let zoomSc = 1.0;
-let zoomX = 1.0;
-let zoomY = 1.0;
+let zoom_flag = false;
+let zoom_first = false;
+let ZOOM_LVL = 10;
+let zoomxy = [];
 
 let global_engaged = [];
 let global_selected = [];
+let global_drawing = [];
+let global_drawing_f = [];
 
 function preload() {
   entryTexture = loadImage("assets/entrynodemodel.png");
@@ -39,15 +39,23 @@ async function firebaseInit() {
       Nodes = reviveNodes(itemVal);
     });
   });
+  //database.ref("points");
 }
 function firebaseWrite() {
+  if (global_selected.length > 0) {
+    curr = global_selected[0];
+    curr.drawing = global_drawing;
+  }
+  if (!half_canvas) {
+    global_drawing = [];
+    global_drawing_f = [];
+  }
   if (!Nodes.length == 0) {
     database
       .ref("nodes")
       .set({ Nodes })
       .then(function (out) {
-        console.log("writting");
-        console.log(out);
+        console.log("db: writing nodes");
       });
   }
 }
@@ -138,6 +146,31 @@ async function setup() {
 }
 //draws splines between nodes
 function drawSplines() {
+  if (zoom_flag) {
+    push();
+    for (let i = 0; i < Nodes.length; i++) {
+      if (Nodes[i].isGoal) {
+        for (let j = 0; j < Nodes[i].EntryArr.length; j++) {
+          var source_node = getNodeByID(Nodes[i].EntryArr[j]);
+          // let x1 = (Nodes[i].x - width / 2) / ZOOM_LVL;
+          // let y1 = (Nodes[i].y - height / 2) / ZOOM_LVL;
+          // let x2 = (source_node.x - width / 2) / ZOOM_LVL;
+          // let y2 = (source_node.y - height / 2) / ZOOM_LVL;
+          let x1 = Nodes[i].x;
+          let y1 = Nodes[i].y;
+          let x2 = source_node.x;
+          let y2 = source_node.y;
+
+          strokeWeight(1);
+          stroke("white");
+
+          line(x1, y1, x2, y2);
+        }
+      }
+    }
+    pop();
+    return;
+  }
   for (let i = 0; i < Nodes.length; i++) {
     if (Nodes[i].isGoal) {
       for (let j = 0; j < Nodes[i].EntryArr.length; j++) {
@@ -241,16 +274,36 @@ function draw() {
   info_bar.elt.innerHTML = "Paul Lorenc " + curDate;
   cleanText();
   background(0, 0, 0);
+  if (zoom_flag) {
+    push();
+    translate(width / 2, height / 2);
+    for (let i = 0; i < Nodes.length; i++) {
+      if (!zoom_first) {
+        o_coords = {
+          x: Nodes[i].x,
+          y: Nodes[i].y,
+        };
+        zoomxy.push(o_coords);
+        Nodes[i].x = (Nodes[i].x - width / 2) / ZOOM_LVL;
+        Nodes[i].y = (Nodes[i].y - height / 2) / ZOOM_LVL;
+      }
+      if (Nodes[i].isGoal) {
+        stroke("blue");
+        fill("blue");
+      } else {
+        stroke("red");
+        fill("red");
+      }
+      ellipse(Nodes[i].x, Nodes[i].y, 100 / ZOOM_LVL, 100 / ZOOM_LVL);
+    }
+    drawSplines();
+    zoom_first = true;
+    pop();
+    return;
+  }
   if (!search_state) {
     journal_text.elt.focus();
   }
-  if (zoomout) {
-    zoomSc = zoomSc - 0.1;
-  }
-  if (zoomin) {
-    zoomSc = zoomSc + 0.1;
-  }
-  //scale(zoomSc)
   drawSplines();
   for (let i = 0; i < Nodes.length; i++) {
     if (Nodes[i].contains(mouseX, mouseY)) {
@@ -261,8 +314,6 @@ function draw() {
     Nodes[i].show();
   }
   drawCanvasBorder();
-  zoomout = false;
-  zoomin = false;
 }
 
 function windowResized() {
@@ -277,6 +328,23 @@ function halfCanvas() {
 
 // global mousepress handler
 function mousePressed() {
+  if (zoom_flag) {
+    if (keyIsPressed && keyCode == 16) {
+      push();
+      x = (mouseX - width / 2) / ZOOM_LVL;
+      y = (mouseY - height / 2) / ZOOM_LVL;
+      for (let i = 0; i < Nodes.length; i++) {
+        Nodes[i].update(-(mouseX - width / 2), -(mouseY - height / 2));
+        Nodes[i].x = Nodes[i].x * ZOOM_LVL + width / 2;
+        Nodes[i].y = Nodes[i].y * ZOOM_LVL + height / 2;
+        zoom_first = false;
+        zoom_flag = false;
+      }
+      console.log(x, y);
+      pop();
+    }
+    return;
+  }
   if (half_canvas && mouseX > windowWidth / 2) {
     if (search_state) {
       journal_text.elt.focus();
@@ -290,6 +358,12 @@ function mousePressed() {
   let spotlightText = "";
 
   for (let i = 0; i < Nodes.length; i++) {
+    if (Nodes[i].contains(mouseX, mouseY) && half_canvas) {
+      return;
+    }
+  }
+
+  for (let i = 0; i < Nodes.length; i++) {
     if (Nodes[i].intersects(mouseX, mouseY)) {
       intersect_flag = true;
     }
@@ -297,11 +371,6 @@ function mousePressed() {
       if (global_engaged.length > 0) {
         if (Nodes[i].isGoal && !global_engaged[0].isGoal) {
           Nodes[i].EntryArr.push(global_engaged[0].id);
-        } else if (!Nodes[i].isGoal) {
-          old_engaged = global_engaged.pop();
-          old_engaged.engaged = false;
-          Nodes[i].engaged = true;
-          global_engaged.push(Nodes[i]);
         }
         return;
       }
@@ -322,6 +391,7 @@ function mousePressed() {
         }
         global_selected.push(Nodes[i]);
         Nodes[i].selected = true;
+        global_drawing = Nodes[i].drawing;
         spotlightText = Nodes[i].text;
         spotlight_flag = true;
         spotlightX = windowWidth / 4 - Nodes[i].x;
@@ -347,6 +417,8 @@ function mousePressed() {
       goal_display.show();
     } else {
       goal_display.hide();
+      global_drawing = global_selected[0].drawing;
+      ge_setFunctions();
       journal_editor.show();
     }
     j_getter.show();
@@ -356,7 +428,7 @@ function mousePressed() {
     global_selected[0].text = $("writer").innerHTML;
   }
 
-  if (!spotlight_flag) {
+  if (!spotlight_flag && half_canvas) {
     firebaseWrite();
     j_getter.hide();
     journal_editor.hide();
@@ -392,8 +464,6 @@ function mouseDragged() {
   }
 }
 
-function mouseReleased() {}
-
 function keyReleased() {
   intersect_flag = false;
   //esc key
@@ -409,10 +479,10 @@ function keyReleased() {
 
   //ctrl
   if (keyCode == 17) {
-    if (!half_canvas) {
-      search_state = true;
-      search_bar.elt.focus();
-    }
+    // if (!half_canvas) {
+    search_state = true;
+    search_bar.elt.focus();
+    // }
   }
   //-
   if (keyCode == 189) {
@@ -461,11 +531,43 @@ function searchKeyReleased() {
     ss_idx = 0;
     var search_str = $("search_bar").value.toLowerCase();
     if (search_str.charAt(0) == ":") {
-      s_cmd = search_str.substring(1);
+      s_cmd = search_str.charAt(1);
       switch (s_cmd) {
         case "s":
           firebaseWrite();
-          console.log("writing from command terminal!!");
+          break;
+        case "c":
+          if (half_canvas && global_selected.length > 0) {
+            if (!global_selected[0].isGoal) {
+              global_selected.drawing = [];
+              global_drawing = [];
+              global_drawing_f = [];
+            }
+          }
+          break;
+        case "x":
+          if (half_canvas && global_selected.length > 0) {
+            global_selected[0].text = "";
+            clearSet("");
+          }
+          break;
+        case "z":
+          if (!zoom_flag) {
+            search_arr = search_str.split(" ");
+            console.log("here", search_arr);
+            if (search_arr.length > 1) {
+              ZOOM_LVL = search_arr[1];
+            } else {
+              ZOOM_LVL = 10;
+            }
+          } else if (zoom_first) {
+            for (let i = 0; i < Nodes.length; i++) {
+              Nodes[i].x = zoomxy[i].x;
+              Nodes[i].y = zoomxy[i].y;
+            }
+          }
+          zoom_first = false;
+          zoom_flag = !zoom_flag;
       }
       $("search_bar").value = "";
       $("writersearch").innerHTML = "";
@@ -487,7 +589,6 @@ function searchKeyReleased() {
       }
       global_selected.push(search_stack[ss_idx]);
       spotlightUpdate(search_stack[ss_idx], Nodes);
-      console.log(search_stack.length);
     } else {
       $("search_bar").value = "";
       $("writersearch").innerHTML = "";
@@ -498,7 +599,6 @@ function searchKeyReleased() {
   }
   //right arrow during search state
   if (keyCode == 39 && search_state) {
-    console.log("right");
     if (ss_idx < search_stack.length - 1) {
       ss_idx = ss_idx + 1;
     }
@@ -515,7 +615,6 @@ function searchKeyReleased() {
 
   //left arrow during search state
   if (keyCode == 37 && search_state) {
-    console.log("left");
     if (ss_idx > 0) {
       ss_idx = ss_idx - 1;
     }
